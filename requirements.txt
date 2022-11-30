@@ -4,7 +4,6 @@ youtube_dl==2021.6.6
 youtube_search==2.1.0
 requests
 shazamio
-heroku3
-instagrapi==1.16.16
+git+https://github.com/adw0rd/instagrapi.git
 Pillow>=8.1.1
 git+https://github.com/paavampayyan/new_tube.git

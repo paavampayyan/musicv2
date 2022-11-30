@@ -6,10 +6,7 @@ import os
 import time
 import requests
 import urllib.request
-import heroku3
 
-heroku_conn = heroku3.from_key('931684b2-0ad8-4b13-a12d-62af6e688527')
-happ = heroku_conn.apps()['kiensy-v2']
 
 pm_button = InlineKeyboardMarkup([[InlineKeyboardButton("Save to DM", callback_data="dm_s")]])
 dur_button = InlineKeyboardMarkup([[InlineKeyboardButton("Continue", callback_data="dw_c"), InlineKeyboardButton("No it's Wrong", callback_data='dw_r')]])
@@ -71,4 +68,3 @@ def download(app, song_name, m, user):
     except Exception as e:
         r1.edit("Hmmm, maybe something went wrong. Wait, I will try to fix it myself.")
         print(e)
-        happ.restart()

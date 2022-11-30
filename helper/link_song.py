@@ -3,13 +3,10 @@ from pyrogram import Client as bot
 from pyrogram.types import *
 from pyrogram.types.messages_and_media.message import Message
 import urllib.request
-from pytube import YouTube, exceptions
 import os
-import heroku3
 import re
 
-heroku_conn = heroku3.from_key('931684b2-0ad8-4b13-a12d-62af6e688527')
-happ = heroku_conn.apps()['kiensy-v2']
+
 
 def convert(seconds):
     if seconds >= 3600:
@@ -68,4 +65,3 @@ def link_to_song(app, m):
         m1.edit("How Can i Download Live stream videos?")
     except Exception as e:
         m1.edit("Hmmm, maybe something went wrong. Wait, I will try to fix it myself.")
-        happ.restart()

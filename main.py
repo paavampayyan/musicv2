@@ -6,15 +6,23 @@ from helper.v_dfunc import *
 from helper.recognition import *
 from helper.instavideo import *
 import os
-import heroku3
+from os import getenv
 from helper.link_song import *
+import urllib.request 
 
-heroku_conn = heroku3.from_key('931684b2-0ad8-4b13-a12d-62af6e688527')
-happ = heroku_conn.apps()['kiensy-v2']
 
 app = Client('baby', api_id=7834184,
 api_hash='9599543ce14c4b04599900e5ae19c55f',
 bot_token='2104461159:AAH0okRzBoeW9J389LbnPdzE7j3_BWn6-ck')
+
+
+assistant = Client("insta_help",api_id=1280226,
+api_hash='40c6be639fd3e699783cbb43c511cef0' )
+
+
+
+
+
 
 ex_text = InlineKeyboardMarkup([[InlineKeyboardButton("Examples 📓", callback_data="ex_b")]])
 
@@ -32,14 +40,68 @@ ytregex = r"^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[
 music_group = -1001316272916
 video_group = -1001668676447
 instargex = r"https://www.instagram.com/"
+# api = getenv("API_KEY")
+
+
+
+@assistant.on_message(filters.user('@InsDownloaderRobot') & filters.video)
+def get_Video_data(__, m:Message):
+    if m.reply_to_message:
+        tag = m.reply_to_message.text.split("vid_id=")[1]
+        assistant.copy_message(-1001182974647, from_chat_id='@InsDownloaderRobot', caption=tag , message_id=m.id)
+        # app.send_video(video_group, video=f'videos/MMC_{tag}_Video.mp4', reply_to_message_id=int(tag))
+        # os.remove(f'videos/MMC_{tag}_Video.mp4')
+
+@assistant.on_message(filters.user('@InsDownloaderRobot') & filters.photo)
+def get_Video_data(__, m:Message):
+    if m.reply_to_message:
+        tag = m.reply_to_message.text.split("vid_id=")[1]
+        app.send_message(video_group, text="here you can only download insta videos not photos!", reply_to_message_id=int(tag))
+
+@app.on_message(filters.regex('https://www.instagram.com/') & filters.chat(video_group))
+def get_insta_file(__, m:Message):
+
+    insta_bot(m, app)
+    # for_Video = f"{m.text} vid_id={m.id}"
+    # alert = m.reply_text("Please Wait!!! Checking video Availability...")
+    # n1 = assistant.send_message('@InsDownloaderRobot', text=m.text)
+    # assistant.edit_message_text('@InsDownloaderRobot', message_id=n1.id, text=f"{m.text} vid_id={m.id}")
+    # time.sleep(2)
+    # alert.delete()
+
+@app.on_message(filters.video & filters.chat(-1001182974647))
+def video_to_user(__, m:Message):
+    if m.caption:
+        m.copy(video_group, caption="", reply_to_message_id=int(m.caption))
+
+
+@assistant.on_message(filters.regex("Account is private ") & filters.user('@InsDownloaderRobot'))
+def private_errot(__, m:Message):
+    if m.reply_to_message:
+        tag = m.reply_to_message.text.split("vid_id=")[1]
+        app.send_message(video_group, text="Sorry! I can't Download Private Videos!", reply_to_message_id=int(tag))
+
+
+@assistant.on_message(filters.regex("direct link.") & filters.user('@InsDownloaderRobot'))
+def direct_link(__, m:Message):
+    if m.reply_to_message:
+        url = m.entities[0].url
+        file_name = f"MMC_Video_{m.id}.mp4"
+        urllib.request.urlretrieve(url, file_name)
+        print(url)
+        tag = m.reply_to_message.text.split("vid_id=")[1]
+        print(tag)
+        app.send_video(video_group, video=file_name, reply_to_message_id=int(tag))
+        os.remove(file_name)
 
 @app.on_message(filters.regex(ytregex) & (filters.chat(music_group)))
 def link_conv_song(__, m:Message):
     link_to_song(app, m)
 
-@app.on_message(filters.regex(instargex) & filters.chat(video_group)) 
-def get_insta_video(__, m:Message):
-    insta_bot(m)
+#chat(video_group)
+# @app.on_message(filters.regex(instargex) & filters.chat(video_group)) 
+# def get_insta_video(__, m:Message):
+#     insta_bot(m, app)
 
 
 @app.on_callback_query(filters.regex('dw_c'))
@@ -272,5 +334,7 @@ async def get_song_one(___, m: Message):
                 await b_r1.edit("How Can i Download Live stream videos?")
             except exceptions as e:
                 await b_r1.edit("Hmmm, maybe something went wrong. Wait, I will try to fix it myself.")
-                await happ.restart()
+
+# compose([assistant, app]).run()
+
 app.run()
