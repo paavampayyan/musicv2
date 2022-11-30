@@ -3,7 +3,9 @@ from pyrogram import Client as bot
 from pyrogram.types import *
 from pyrogram.types.messages_and_media.message import Message
 import urllib.request
+from pytube import YouTube, exceptions
 import os
+
 import re
 
 
